@@ -1,0 +1,46 @@
+/* src/styles.scss */
+
+:root {
+  --bg-app: #121212;        /* Very dark, almost black */
+  --bg-panel: #1e1e1e;      /* Slightly lighter for panels */
+  --bg-hover: #2a2a2a;
+  --text-main: #e0e0e0;
+  --text-dim: #a0a0a0;
+  --accent-red: #e82127;    /* Tesla Red */
+  --accent-red-dim: #b01b20;
+  --border: #333333;
+  --font-stack: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  font-family: var(--font-stack);
+  overflow: hidden; /* App feels like native app, no window scroll */
+}
+
+/* Global Scrollbar Styling */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-app); }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-red); }
+
+/* Utility Classes */
+.btn-red {
+  background-color: var(--accent-red);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s;
+  
+  &:hover { background-color: var(--accent-red-dim); }
+  &:disabled { background-color: #444; color: #888; }
+}

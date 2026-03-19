@@ -1,0 +1,8 @@
+<div class="window-wrapper">
+  <app-workspace-tabs></app-workspace-tabs>
+  <div class="app-layout" [style.--sidebar-width.px]="sidebarWidth()">
+    <app-sidebar></app-sidebar>
+    <div class="resizer" [class.is-resizing]="isResizing()" (mousedown)="onResizeStart($event)"></div>
+    <app-content-area></app-content-area>
+  </div>
+</div>

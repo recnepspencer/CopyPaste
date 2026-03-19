@@ -1,0 +1,27 @@
+<div class="placeholder">
+  <div class="placeholder-content">
+    <h1>Project Explorer</h1>
+    <p>Import a project to get started</p>
+    
+    <button class="btn-red large" (click)="projectState.openProject()">
+      <lucide-icon name="folder" [size]="18"></lucide-icon>
+      Import Project
+    </button>
+    
+    @if (projectState.recentProjects().length > 0) {
+      <div class="recent-projects">
+        <h3>Recent Projects</h3>
+        <div class="recent-projects-list">
+          @for (projectPath of projectState.recentProjects(); track projectPath) {
+            <button class="recent-project-item" (click)="projectState.openProject(projectPath)">
+              <lucide-icon name="folder" [size]="16"></lucide-icon>
+              <span class="project-name">{{ getProjectName(projectPath) }}</span>
+              <span class="project-path">{{ projectPath }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

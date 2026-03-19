@@ -1,0 +1,183 @@
+<div class="search-section">
+  <div class="search-wrapper"
+       (dragover)="onSearchDragOver($event)"
+       (dragleave)="onSearchDragLeave($event)"
+       (drop)="onSearchDrop($event)">
+    <lucide-icon name="search" [size]="14" class="search-icon"></lucide-icon>
+    <input 
+      type="text" 
+      class="search-input"
+      [value]="searchService.searchQuery()"
+      (input)="onSearchInput($event)"
+      (focus)="searchService.showSearchResults.set(true)"
+      placeholder="Search files... (drag folders here to limit scope)">
+    <div class="search-actions">
+      <button class="search-options-btn" 
+              (click)="toggleSearchOptions()"
+              title="Search options">
+        <lucide-icon name="settings" [size]="14"></lucide-icon>
+      </button>
+    </div>
+  </div>
+  
+  @if (searchService.searchIncludeFolders().length > 0 || searchService.searchExcludePatterns().length > 0) {
+    <div class="search-status">
+      @if (searchService.searchIncludeFolders().length > 0) {
+        <span class="search-badge include">{{ searchService.searchIncludeFolders().length }} folder(s)</span>
+      }
+      @if (searchService.searchExcludePatterns().length > 0) {
+        <span class="search-badge exclude">{{ searchService.searchExcludePatterns().length }} exclude(s)</span>
+      }
+    </div>
+  }
+  
+  @if (showOptions()) {
+    <div class="search-options-panel" (click)="$event.stopPropagation()">
+      <div class="options-header">
+        <h3>Search Options</h3>
+        <button class="options-close" (click)="closeSearchOptions()">
+          <lucide-icon name="x" [size]="16"></lucide-icon>
+        </button>
+      </div>
+      
+      <div class="options-section">
+        <label>Include Folders</label>
+        <div class="filter-items-list">
+          @for (folder of searchService.searchIncludeFolders(); track folder.id) {
+            <div class="filter-item" 
+                 [class.has-conflict]="searchService.hasIncludeConflict(folder.path)"
+                 [class.disabled-row]="searchService.hasIncludeConflict(folder.path) && !folder.enabled"
+                 [title]="searchService.hasIncludeConflict(folder.path) ? searchService.getIncludeConflictMessage(folder.path) : ''">
+              <div class="filter-input-wrapper">
+                <input 
+                  type="text" 
+                  class="filter-input"
+                  [value]="folder.path"
+                  (focus)="editingIncludeId.set(folder.id)"
+                  (blur)="updateIncludeFolder(folder.id, $any($event.target).value); editingIncludeId.set(null)"
+                  (keyup.enter)="updateIncludeFolder(folder.id, $any($event.target).value); editingIncludeId.set(null)"
+                  (keyup.escape)="editingIncludeId.set(null)"
+                  [readonly]="editingIncludeId() !== folder.id || (searchService.hasIncludeConflict(folder.path) && !folder.enabled)"
+                  [class.editing]="editingIncludeId() === folder.id"
+                  [class.disabled]="!folder.enabled || searchService.hasIncludeConflict(folder.path)">
+                <button class="filter-input-clear" 
+                        (click)="searchService.removeIncludeFolder(folder.id); $event.stopPropagation()"
+                        [disabled]="searchService.hasIncludeConflict(folder.path) && !folder.enabled">
+                  <lucide-icon name="x" [size]="12"></lucide-icon>
+                </button>
+              </div>
+              <label class="filter-toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [checked]="folder.enabled"
+                  [disabled]="searchService.hasIncludeConflict(folder.path) && !folder.enabled"
+                  (change)="toggleIncludeFolder(folder.id)">
+                <span class="filter-toggle-slider"></span>
+              </label>
+            </div>
+          }
+          <div class="filter-item filter-item-add">
+            <div class="filter-input-wrapper">
+              <input 
+                type="text" 
+                class="filter-input"
+                [value]="newIncludePath()"
+                (input)="newIncludePath.set($any($event.target).value)"
+                (keyup.enter)="addNewIncludeFolder()"
+                placeholder="Folder path...">
+            </div>
+            <button class="btn-add" (click)="addNewIncludeFolder()">
+              Add
+            </button>
+            <button class="btn-add" (click)="selectIncludeFolder()" title="Select folder">
+              <lucide-icon name="folder" [size]="12"></lucide-icon>
+            </button>
+          </div>
+          @if (searchService.searchIncludeFolders().length === 0) {
+            <div class="options-hint">No folders included - searching all files</div>
+          }
+        </div>
+      </div>
+      
+      <div class="options-section">
+        <label>Exclude Patterns</label>
+        <div class="filter-items-list">
+          @for (pattern of searchService.searchExcludePatterns(); track pattern.id) {
+            <div class="filter-item" 
+                 [class.has-conflict]="searchService.hasExcludeConflict(pattern.pattern)"
+                 [class.disabled-row]="searchService.hasExcludeConflict(pattern.pattern) && !pattern.enabled"
+                 [title]="searchService.hasExcludeConflict(pattern.pattern) ? 'Conflicts with enabled include folders' : ''">
+              <div class="filter-input-wrapper">
+                <input 
+                  type="text" 
+                  class="filter-input"
+                  [value]="pattern.pattern"
+                  [class.disabled]="!pattern.enabled || searchService.hasExcludeConflict(pattern.pattern)"
+                  (focus)="editingPatternId.set(pattern.id)"
+                  (blur)="updateExcludePattern(pattern.id, $any($event.target).value); editingPatternId.set(null)"
+                  (keyup.enter)="updateExcludePattern(pattern.id, $any($event.target).value); editingPatternId.set(null)"
+                  (keyup.escape)="editingPatternId.set(null)"
+                  [readonly]="editingPatternId() !== pattern.id || (searchService.hasExcludeConflict(pattern.pattern) && !pattern.enabled)"
+                  [class.editing]="editingPatternId() === pattern.id">
+                <button class="filter-input-clear" 
+                        (click)="searchService.removeExcludePattern(pattern.id); $event.stopPropagation()"
+                        [disabled]="searchService.hasExcludeConflict(pattern.pattern) && !pattern.enabled">
+                  <lucide-icon name="x" [size]="12"></lucide-icon>
+                </button>
+              </div>
+              <label class="filter-toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [checked]="pattern.enabled"
+                  [disabled]="searchService.hasExcludeConflict(pattern.pattern) && !pattern.enabled"
+                  (change)="toggleExcludePattern(pattern.id)">
+                <span class="filter-toggle-slider"></span>
+              </label>
+            </div>
+          }
+          <div class="filter-item filter-item-add">
+            <div class="filter-input-wrapper">
+              <input 
+                type="text" 
+                class="filter-input"
+                [value]="newExcludePattern()"
+                (input)="newExcludePattern.set($any($event.target).value)"
+                (keyup.enter)="addNewExcludePattern()"
+                placeholder="e.g., **/*.spec.ts, **/test/**">
+            </div>
+            <button class="btn-add" (click)="addNewExcludePattern()">
+              Add
+            </button>
+          </div>
+          @if (searchService.searchExcludePatterns().length === 0) {
+            <div class="options-hint">No exclude patterns added</div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+  
+  @if (searchService.showSearchResults() && searchService.searchQuery() && filteredSearchResults().length > 0) {
+    <div class="search-results" (scroll)="onSearchScroll($event)">
+      @for (file of filteredSearchResults(); track file.path) {
+        <div class="search-result-item" 
+             [class.selected]="isFileSelected(file.path)"
+             (click)="toggleFileFromSearch(file)">
+          <input type="checkbox" 
+                 [checked]="isFileSelected(file.path)"
+                 (click)="$event.stopPropagation(); toggleFileFromSearch(file)">
+          <lucide-icon name="file-code" [size]="12"></lucide-icon>
+          <span class="search-result-name">{{ file.name }}</span>
+          <span class="search-result-path">{{ getRelativePath(file.path) }}</span>
+        </div>
+      }
+      @if (searchService.searchResultsLimit() < searchService.workerSearchResults().length) {
+        <div class="search-loading-more">
+          <lucide-icon name="loader-2" class="spin-icon" [size]="14"></lucide-icon>
+          <span>Scroll for more results...</span>
+        </div>
+      }
+    </div>
+  }
+</div>
+

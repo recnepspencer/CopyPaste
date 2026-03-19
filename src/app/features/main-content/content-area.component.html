@@ -1,0 +1,31 @@
+<main class="content">
+  @if (projectState.files().length > 0 || projectState.isProjectLoading()) {
+  <div class="content-header">
+    <h2>Selected Files</h2>
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="handleRefresh()" [disabled]="projectState.isRefreshing()"
+        title="Refresh files and tokens">
+        <lucide-icon name="rotate-cw" [size]="16"></lucide-icon>
+        <span>{{ projectState.isRefreshing() ? 'Refreshing...' : 'Refresh' }}</span>
+      </button>
+
+      <button class="btn-copy" (click)="copySelectedFiles()" [disabled]="projectState.totalSelectedTokens() === 0">
+        <lucide-icon name="copy" [size]="16"></lucide-icon>
+        Copy Prompt
+      </button>
+    </div>
+  </div>
+  <div class="content-body">
+    <app-folder-level-view></app-folder-level-view>
+  </div>
+  } @else {
+  <app-welcome-screen></app-welcome-screen>
+  }
+
+  @if (showToast()) {
+  <div class="toast">
+    <lucide-icon name="check-circle" [size]="20"></lucide-icon>
+    <span>{{ toastMessage() }}</span>
+  </div>
+  }
+</main>

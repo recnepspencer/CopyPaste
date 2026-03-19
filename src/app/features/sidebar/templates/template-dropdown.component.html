@@ -1,0 +1,42 @@
+<div class="template-section">
+  <div class="section-label">TEMPLATES</div>
+  <div class="template-dropdown-wrapper">
+    <button class="template-dropdown-trigger" (click)="toggleDropdown()">
+      <span [class.placeholder]="!selectedTemplate()">
+        {{ selectedTemplate()?.name || 'Select a template...' }}
+      </span>
+      <lucide-icon name="chevron-down" [size]="14" [class.rotated]="showDropdown()"></lucide-icon>
+    </button>
+    
+    @if (showDropdown()) {
+      <div class="template-dropdown-menu">
+        @for (t of templateService.templates(); track t.id) {
+          <div class="template-dropdown-item" [class.selected]="selectedTemplate()?.id === t.id">
+            <button class="template-item-name" (click)="applyTemplate(t)">
+              {{ t.name }}
+            </button>
+            <button class="template-item-menu" 
+                    #menuButton
+                    (click)="toggleMenu(t.id, $event, menuButton)">
+              <lucide-icon name="more-horizontal" [size]="12"></lucide-icon>
+            </button>
+          </div>
+        } @empty {
+          <div class="template-dropdown-empty">No templates saved</div>
+        }
+      </div>
+    }
+    
+    @if (activeMenuId() && showDropdown()) {
+      <div class="template-item-popover" 
+           [style.top.px]="popoverPosition().top"
+           [style.right.px]="popoverPosition().right"
+           (mouseleave)="activeMenuId.set(null)">
+        <button class="delete-btn" (click)="deleteTemplate(activeMenuId()!)">
+          <lucide-icon name="trash-2" [size]="12"></lucide-icon> Delete
+        </button>
+      </div>
+    }
+  </div>
+</div>
+

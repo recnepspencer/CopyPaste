@@ -1,0 +1,29 @@
+.window-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.app-layout {
+  display: grid;
+  /* Use a CSS variable for the sidebar width, defaulting to 350px */
+  grid-template-columns: var(--sidebar-width, 350px) 4px 1fr;
+  flex: 1; /* Take up remaining height under tabs */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.resizer {
+  width: 4px;
+  background-color: var(--border);
+  cursor: col-resize;
+  z-index: 10;
+  transition: background-color 0.2s;
+
+  &:hover,
+  &.is-resizing {
+    background-color: var(--primary);
+  }
+}

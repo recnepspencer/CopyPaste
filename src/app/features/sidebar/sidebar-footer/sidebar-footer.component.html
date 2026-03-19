@@ -1,0 +1,33 @@
+<div class="sidebar-footer">
+  <div class="metric">
+    <div class="value-group">
+      <span class="value">
+        {{ projectState.totalSelectedTokens() | number }}
+      </span>
+      <span class="unit">toks</span>
+    </div>
+  </div>
+  <div class="footer-actions">
+    <button class="btn-clear" (click)="projectState.clearSelection()" title="Clear Selection">
+      <lucide-icon name="x" [size]="14"></lucide-icon> Clear
+    </button>
+    <button class="btn-save" (click)="openSaveDialog()" title="Save Template">
+      <lucide-icon name="save" [size]="14"></lucide-icon> Save
+    </button>
+  </div>
+
+  @if (showSaveDialog()) {
+  <div class="overlay" (click)="closeSaveDialog()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Save Template</h3>
+      <input type="text" class="modal-input" [value]="newTemplateName()"
+        (input)="newTemplateName.set($any($event.target).value)" (keyup.enter)="saveTemplate()"
+        (keyup.escape)="closeSaveDialog()" placeholder="Template name..." autofocus>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeSaveDialog()">Cancel</button>
+        <button class="btn-primary" (click)="saveTemplate()">Save</button>
+      </div>
+    </div>
+  </div>
+  }
+</div>
