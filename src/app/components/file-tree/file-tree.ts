@@ -27,7 +27,7 @@ export interface FileNode {
             "
           >
             <input
-              type="checkbox"
+              type="radio"
               [checked]="
                 node.type === 'file'
                   ? projectState.isSelected(node.path)
